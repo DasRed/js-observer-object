@@ -7,10 +7,10 @@
         });
 
     } else if (typeof exports !== 'undefined') {
-        exports.Observer = factory();
+        exports.ObjectObserver = factory();
 
     } else {
-        root.Observer = factory();
+        root.ObjectObserver = factory();
     }
 
 }(this, function () {

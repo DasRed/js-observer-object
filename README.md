@@ -1,7 +1,7 @@
-# js-console
+# object-observer
 ## Install
 ```
-bower install js-console --save
+bower install object-observer --save
 ```
 ## How To
 ```
