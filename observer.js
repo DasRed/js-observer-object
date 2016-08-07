@@ -7,7 +7,7 @@
         });
 
     } else if (typeof exports !== 'undefined') {
-        exports.ObjectObserver = factory();
+        root.ObjectObserver = factory();
 
     } else {
         root.ObjectObserver = factory();
