@@ -46,6 +46,69 @@
     }
 
     /**
+     *
+     * @param {Array} events
+     * @param {Array} parameters
+     * @return {*}
+     */
+    function callEventCallback(events, parameters) {
+        var i            = -1;
+        var lengthEvents = events.length;
+        var result       = undefined;
+        var event        = undefined;
+        var eventResult  = undefined;
+
+        var lengthParameters = parameters.length;
+
+        while (++i < lengthEvents) {
+            event = events[i];
+
+            if (lengthParameters === 0) {
+                eventResult = event.callback.call(event.ctx);
+            }
+            else if (lengthParameters === 1) {
+                eventResult = event.callback.call(event.ctx, parameters[0]);
+            }
+            else if (lengthParameters === 2) {
+                eventResult = event.callback.call(event.ctx, parameters[0], parameters[1]);
+            }
+            else if (lengthParameters === 3) {
+                eventResult = event.callback.call(event.ctx, parameters[0], parameters[1], parameters[2]);
+            }
+            else if (lengthParameters === 4) {
+                eventResult = event.callback.call(event.ctx, parameters[0], parameters[1], parameters[2], parameters[3]);
+            }
+            else if (lengthParameters === 5) {
+                eventResult = event.callback.call(event.ctx, parameters[0], parameters[1], parameters[2], parameters[3], parameters[4]);
+            }
+            else if (lengthParameters === 6) {
+                eventResult = event.callback.call(event.ctx, parameters[0], parameters[1], parameters[2], parameters[3], parameters[4], parameters[5]);
+            }
+            else if (lengthParameters === 7) {
+                eventResult = event.callback.call(event.ctx, parameters[0], parameters[1], parameters[2], parameters[3], parameters[4], parameters[5], parameters[6]);
+            }
+            else if (lengthParameters === 8) {
+                eventResult = event.callback.call(event.ctx, parameters[0], parameters[1], parameters[2], parameters[3], parameters[4], parameters[5], parameters[6], parameters[7]);
+            }
+            else if (lengthParameters === 9) {
+                eventResult = event.callback.call(event.ctx, parameters[0], parameters[1], parameters[2], parameters[3], parameters[4], parameters[5], parameters[6], parameters[7], parameters[8]);
+            }
+            else if (lengthParameters === 10) {
+                eventResult = event.callback.call(event.ctx, parameters[0], parameters[1], parameters[2], parameters[3], parameters[4], parameters[5], parameters[6], parameters[7], parameters[8], parameters[9]);
+            }
+            else {
+                eventResult = event.callback.apply(event.ctx, parameters);
+            }
+
+            if (eventResult !== undefined) {
+                result = eventResult;
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * base
      *
      * @param {Object} options
@@ -86,6 +149,17 @@
          */
         events: {
             value: null,
+            enumerable: false,
+            configurable: false,
+            writable: true
+        },
+
+        /**
+         * async events or not
+         * @var {Boolean}
+         */
+        async: {
+            value: true,
             enumerable: false,
             configurable: false,
             writable: true
@@ -144,7 +218,7 @@
     /**
      * creates one or more events
      *
-     * @param {String}|{Object} eventName
+     * @param {String|Object} eventName
      * @param {Function} callback
      * @param {Object} context
      * @returns {Base}
@@ -187,98 +261,49 @@
      * trigger
      *
      * @param {String} eventName
-     * @param {*} ... additional n Parameters
+     * @param {...*} [arg] additional n Parameters
      * @returns {*}
      */
-    Base.prototype.trigger = function (eventName, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10) {
-        var events = this.events[eventName];
-        if (events === undefined) {
+    Base.prototype.trigger = function (eventName, arg) {
+        if (this.events[eventName] === undefined) {
             return undefined;
         }
 
-        var i            = undefined;
-        var lengthEvents = events.length;
-        var result       = undefined;
-        var event        = undefined;
-        var eventResult  = undefined;
-
         var lengthParameters = arguments.length - 1;
-        var parameters       = undefined;
 
-        if (lengthParameters > 10) {
-            parameters = new Array(lengthParameters);
-            // this is faster then Array.prototype.slice.call
-            for (i = 0; i < lengthParameters; i++) {
-                parameters[i] = arguments[i + 1];
-            }
+        var parameters = new Array(lengthParameters);
+        // this is faster then Array.prototype.slice.call
+        for (var i = 0; i < lengthParameters; i++) {
+            parameters[i] = arguments[i + 1];
         }
 
-        i = -1;
-        while (++i < lengthEvents) {
-            event = events[i];
-
-            if (lengthParameters === 0) {
-                eventResult = event.callback.call(event.ctx);
-            }
-            else if (lengthParameters === 1) {
-                eventResult = event.callback.call(event.ctx, param1);
-            }
-            else if (lengthParameters === 2) {
-                eventResult = event.callback.call(event.ctx, param1, param2);
-            }
-            else if (lengthParameters === 3) {
-                eventResult = event.callback.call(event.ctx, param1, param2, param3);
-            }
-            else if (lengthParameters === 4) {
-                eventResult = event.callback.call(event.ctx, param1, param2, param3, param4);
-            }
-            else if (lengthParameters === 5) {
-                eventResult = event.callback.call(event.ctx, param1, param2, param3, param4, param5);
-            }
-            else if (lengthParameters === 6) {
-                eventResult = event.callback.call(event.ctx, param1, param2, param3, param4, param5, param6);
-            }
-            else if (lengthParameters === 7) {
-                eventResult = event.callback.call(event.ctx, param1, param2, param3, param4, param5, param6, param7);
-            }
-            else if (lengthParameters === 8) {
-                eventResult = event.callback.call(event.ctx, param1, param2, param3, param4, param5, param6, param7, param8);
-            }
-            else if (lengthParameters === 9) {
-                eventResult = event.callback.call(event.ctx, param1, param2, param3, param4, param5, param6, param7, param8, param9);
-            }
-            else if (lengthParameters === 10) {
-                eventResult = event.callback.call(event.ctx, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10);
-            }
-            else {
-                eventResult = event.callback.apply(event.ctx, parameters);
-            }
-
-            if (eventResult !== undefined) {
-                result = eventResult;
-            }
+        if (this.async === true) {
+            setTimeout(callEventCallback.bind(this, this.events[eventName], parameters), 0);
+        }
+        else {
+            callEventCallback(this.events[eventName], parameters)
         }
 
-        return result;
+        return undefined;
     };
 
     /**
      * object observer for all properties
      *
      * @param {Object} object
-     * @param {Object} options
+     * @param {Object} options ... can have async = true || async = false. If true, response values of event callbacks will be ignored
      *
      * @event {void} get({ObjectOfObservation}, {PropertyName}, value) fires if some whants to get the value
      * @event {void} get[:PropertyName]({ObjectOfObservation}, {PropertyName}, value) fires if some whants to get the value
-     * @event {*} get:before({ObjectOfObservation}, {PropertyName}) fires before if some wants to get the value. if callback returns a value other then undefined, this value will be retruned from get
-     * @event {*} get:before[:PropertyName]({ObjectOfObservation}, {PropertyName}) fires before if some wants to get the value. if callback returns a value other then undefined, this value will be retruned from get
+     * @event {*} get:before({ObjectOfObservation}, {PropertyName}) fires before if some wants to get the value. if callback returns a value other then undefined, this value will be retruned from get. only for ASYNC = FALSE
+     * @event {*} get:before[:PropertyName]({ObjectOfObservation}, {PropertyName}) fires before if some wants to get the value. if callback returns a value other then undefined, this value will be retruned from get only for ASYNC = FALSE
      * @event {void} get:after({ObjectOfObservation}, {PropertyName}, value) fires after if some wants to get the value.
      * @event {void} get:after[:PropertyName]({ObjectOfObservation}, {PropertyName}, value) fires after if some wants to get the value.
      *
      * @event {void} set({ObjectOfObservation}, {PropertyName}, newValue, oldValue) fires if some whants to set the value
      * @event {void} set[:PropertyName]({ObjectOfObservation}, {PropertyName}, newValue, oldValue) fires if some whants to set the value
-     * @event {Boolean} set:before({ObjectOfObservation}, {PropertyName}, newValue, oldValue) fires before if some wants to set the value. if callback returns FALSE the value will not be setted
-     * @event {Boolean} set:before[:PropertyName]({ObjectOfObservation}, {PropertyName}, newValue, oldValue) fires before if some wants to set the value. if callback returns FALSE the value will not be setted
+     * @event {boolean} set:before({ObjectOfObservation}, {PropertyName}, newValue, oldValue) fires before if some wants to set the value. if callback returns FALSE the value will not be setted only for ASYNC = FALSE
+     * @event {boolean} set:before[:PropertyName]({ObjectOfObservation}, {PropertyName}, newValue, oldValue) fires before if some wants to set the value. if callback returns FALSE the value will not be setted only for ASYNC = FALSE
      * @event {void} set:after({ObjectOfObservation}, {PropertyName}, newValue, oldValue) fires after if some wants to set the value.
      * @event {void} set:after[:PropertyName]({ObjectOfObservation}, {PropertyName}, newValue, oldValue) fires after if some wants to set the value.
      *
@@ -692,10 +717,10 @@
      *
      * @param {String} eventType
      * @param {String} propertyName
-     * @param {*} ... additional parameters
+     * @param {...*} [arg] additional n Parameters
      * @returns {*}
      */
-    ObjectObserver.prototype.trigger = function (eventType, propertyName) {
+    ObjectObserver.prototype.trigger = function (eventType, propertyName, arg) {
         // on not started no event trigger
         if (this.started === false) {
             return;
