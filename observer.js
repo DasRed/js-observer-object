@@ -111,7 +111,9 @@
     /**
      * base
      *
-     * @param {Object} options
+     * @param {Object} [options]
+     * @param {Object} [options.on]
+     * @param {Object} [options.once]
      *        every options will be copied to this instance
      *        magic options
      *            - on: bind every defined event to this instance.
@@ -180,9 +182,9 @@
 
     /**
      *
-     * @param {String} eventName
-     * @param {Function} callback
-     * @param {Object} context
+     * @param {String} [eventName]
+     * @param {Function} [callback]
+     * @param {Object} [context]
      * @returns {Base}
      */
     Base.prototype.off = function (eventName, callback, context) {
@@ -220,7 +222,7 @@
      *
      * @param {String|Object} eventName
      * @param {Function} callback
-     * @param {Object} context
+     * @param {Object} [context]
      * @returns {Base}
      */
     Base.prototype.on = function (eventName, callback, context) {
@@ -291,7 +293,7 @@
      * object observer for all properties
      *
      * @param {Object} object
-     * @param {Object} options ... can have async = true || async = false. If true, response values of event callbacks will be ignored
+     * @param {Object} [options] ... can have async = true || async = false. If true, response values of event callbacks will be ignored
      *
      * @event {void} get({ObjectOfObservation}, {PropertyName}, value) fires if some whants to get the value
      * @event {void} get[:PropertyName]({ObjectOfObservation}, {PropertyName}, value) fires if some whants to get the value
@@ -627,6 +629,13 @@
      * creates and returns a setter
      *
      * @param {Object} property
+     * @param {Boolean} property.hasGetter
+     * @param {Boolean} property.hasSetter
+     * @param {Object} [property.descriptor]
+     * @param {Function} [property.descriptor.get]
+     * @param {Function} [property.descriptor.set]
+     * @param {*} property.value
+     * @param {String} property.name
      * @returns {Function}
      */
     ObjectObserver.prototype.getSetter = function (property) {
@@ -738,7 +747,7 @@
      *
      * @param {String} eventType
      * @param {String} propertyName
-     * @param {Array} parameters
+     * @param {Array} [parameters]
      * @returns {*}
      */
     ObjectObserver.prototype.triggerWithParameters = function (eventType, propertyName, parameters) {
