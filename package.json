@@ -1,0 +1,16 @@
+{
+  "name": "js-object-observer",
+  "version": "1.0.4",
+  "description": "Adds events by the observer for your objects.",
+  "main": "observer.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DasRed/js-observer-object.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/DasRed/js-observer-object/issues"
+  },
+  "homepage": "https://github.com/DasRed/js-observer-object#readme"
+}
