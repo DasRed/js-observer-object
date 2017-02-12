@@ -2,6 +2,7 @@
 ## Install
 ```
 bower install object-observer --save
+npm install js-object-observer --save
 ```
 ## How To
 ```
