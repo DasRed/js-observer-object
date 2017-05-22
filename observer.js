@@ -18,7 +18,7 @@
     var eventSplitter = /\s+/;
 
     /**
-     * @param {Base} obj
+     * @param {ObjectObserver} obj
      * @param {String} eventName
      * @param {Function} callback
      * @param {Object} context
@@ -40,7 +40,7 @@
             }
         }
 
-        if (obj.events[eventName].length == 0) {
+        if (obj.events[eventName].length === 0) {
             delete obj.events[eventName];
         }
     }
@@ -109,191 +109,14 @@
     }
 
     /**
-     * base
-     *
-     * @param {Object} [options]
-     * @param {Object} [options.on]
-     * @param {Object} [options.once]
-     *        every options will be copied to this instance
-     *        magic options
-     *            - on: bind every defined event to this instance.
-     */
-    function Base(options) {
-        this.events = {};
-
-        options = options || {};
-
-        // bind events
-        if (options.on !== undefined) {
-            this.on(options.on);
-            delete options.on;
-        }
-
-        // bind events
-        if (options.once !== undefined) {
-            this.once(options.once);
-            delete options.once;
-        }
-
-        // copy options
-        for (var optionName in options) {
-            if (optionName === 'events') {
-                continue;
-            }
-            this[optionName] = options[optionName];
-        }
-    }
-
-    // prototyping
-    Base.prototype = Object.create(Object.prototype, {
-        /**
-         * @var {Object}
-         */
-        events: {
-            value: null,
-            enumerable: false,
-            configurable: false,
-            writable: true
-        },
-
-        /**
-         * async events or not
-         * @var {Boolean}
-         */
-        async: {
-            value: true,
-            enumerable: false,
-            configurable: false,
-            writable: true
-        }
-    });
-
-    /**
-     * destroys the Base
-     *
-     * @returns {Base}
-     */
-    Base.prototype.destroy = function () {
-        // remove all events
-        this.off();
-
-        return this;
-    };
-
-    /**
-     *
-     * @param {String} [eventName]
-     * @param {Function} [callback]
-     * @param {Object} [context]
-     * @returns {Base}
-     */
-    Base.prototype.off = function (eventName, callback, context) {
-        // remove all events
-        if (eventName === undefined && callback === undefined && context === undefined) {
-            for (key in this.events) {
-                delete this.events[key];
-            }
-        }
-
-        // removes all events by eventName
-        else if (eventName !== undefined && callback === undefined && context === undefined) {
-            if (this.events[eventName] !== undefined) {
-                delete this.events[eventName];
-            }
-        }
-
-        // loop over all events
-        else if (eventName === undefined) {
-            for (var key in this.events) {
-                removeEventsByEventName(this, key, callback, context);
-            }
-        }
-
-        // only one specific event with additional informations
-        else if (this.events[eventName] !== undefined) {
-            removeEventsByEventName(this, eventName, callback, context);
-        }
-
-        return this;
-    };
-
-    /**
-     * creates one or more events
-     *
-     * @param {String|Object} eventName
-     * @param {Function} callback
-     * @param {Object} [context]
-     * @returns {Base}
-     */
-    Base.prototype.on = function (eventName, callback, context) {
-        // Handle event maps.
-        if (typeof eventName === 'object') {
-            for (var key in eventName) {
-                this.on(key, eventName[key]);
-            }
-
-            return this;
-        }
-
-        // Handle space separated event names.
-        if (eventSplitter.test(eventName) === true) {
-            var eventNames = eventName.split(eventSplitter);
-            for (var i = 0, l = eventNames.length; i < l; i++) {
-                this.on(eventNames[i], callback, context);
-            }
-            return this;
-        }
-
-        // create new event entry
-        if (this.events[eventName] === undefined) {
-            this.events[eventName] = [];
-        }
-
-        // append the event
-        this.events[eventName].push({
-            callback: callback,
-            context: context,
-            ctx: context || undefined
-        });
-
-        return this;
-    };
-
-    /**
-     * trigger
-     *
-     * @param {String} eventName
-     * @param {...*} [arg] additional n Parameters
-     * @returns {*}
-     */
-    Base.prototype.trigger = function (eventName, arg) {
-        if (this.events[eventName] === undefined) {
-            return undefined;
-        }
-
-        var lengthParameters = arguments.length - 1;
-
-        var parameters = new Array(lengthParameters);
-        // this is faster then Array.prototype.slice.call
-        for (var i = 0; i < lengthParameters; i++) {
-            parameters[i] = arguments[i + 1];
-        }
-
-        if (this.async === true) {
-            setTimeout(callEventCallback.bind(this, this.events[eventName], parameters), 0);
-        }
-        else {
-            callEventCallback(this.events[eventName], parameters)
-        }
-
-        return undefined;
-    };
-
-    /**
      * object observer for all properties
      *
      * @param {Object} object
-     * @param {Object} [options] ... can have async = true || async = false. If true, response values of event callbacks will be ignored
+     * @param {Object} [options]
+     * @param {Boolean} [options.async] If true, response values of event callbacks will be ignored. default true
+     * @param {Boolean} [options.autoObserve] If true, observe will be starts on construct. dwefault true
+     * @param {Object} [options.on] on events
+     * @param {Object} [options.once] once events
      *
      * @event {void} get({ObjectOfObservation}, {PropertyName}, value) fires if some whants to get the value
      * @event {void} get[:PropertyName]({ObjectOfObservation}, {PropertyName}, value) fires if some whants to get the value
@@ -304,8 +127,8 @@
      *
      * @event {void} set({ObjectOfObservation}, {PropertyName}, newValue, oldValue) fires if some whants to set the value
      * @event {void} set[:PropertyName]({ObjectOfObservation}, {PropertyName}, newValue, oldValue) fires if some whants to set the value
-     * @event {boolean} set:before({ObjectOfObservation}, {PropertyName}, newValue, oldValue) fires before if some wants to set the value. if callback returns FALSE the value will not be setted only for ASYNC = FALSE
-     * @event {boolean} set:before[:PropertyName]({ObjectOfObservation}, {PropertyName}, newValue, oldValue) fires before if some wants to set the value. if callback returns FALSE the value will not be setted only for ASYNC = FALSE
+     * @event {Boolean} set:before({ObjectOfObservation}, {PropertyName}, newValue, oldValue) fires before if some wants to set the value. if callback returns FALSE the value will not be setted only for ASYNC = FALSE
+     * @event {Boolean} set:before[:PropertyName]({ObjectOfObservation}, {PropertyName}, newValue, oldValue) fires before if some wants to set the value. if callback returns FALSE the value will not be setted only for ASYNC = FALSE
      * @event {void} set:after({ObjectOfObservation}, {PropertyName}, newValue, oldValue) fires after if some wants to set the value.
      * @event {void} set:after[:PropertyName]({ObjectOfObservation}, {PropertyName}, newValue, oldValue) fires after if some wants to set the value.
      *
@@ -419,21 +242,51 @@
      */
     function ObjectObserver(object, options) {
         this.object = object;
+        this.events = {};
 
-        Base.call(this, options);
+        options = options || {};
 
-        if (this.autoObserve === true) {
+        // bind events
+        if (options.on !== undefined) {
+            this.on(options.on);
+        }
+
+        // bind events
+        if (options.once !== undefined) {
+            this.once(options.once);
+        }
+
+        this.async = options.async !== undefined ? options.async : this.async;
+
+        if (options.autoObserve !== false) {
             this.observe();
         }
     }
 
+    /**
+     * enables or disables global event handling
+     * @type {boolean}
+     */
+    ObjectObserver.globalEventHandlingEnabled = true;
+
     // prototyping
-    ObjectObserver.prototype = Object.create(Base.prototype, {
+    ObjectObserver.prototype = Object.create(Object.prototype, {
         /**
+         * async events or not
          * @var {Boolean}
          */
-        autoObserve: {
+        async: {
             value: true,
+            enumerable: false,
+            configurable: false,
+            writable: true
+        },
+
+        /**
+         * @var {Object}
+         */
+        events: {
+            value: null,
             enumerable: false,
             configurable: false,
             writable: true
@@ -544,6 +397,18 @@
     };
 
     /**
+     * destroys the ObjectObserver
+     *
+     * @returns {ObjectObserver}
+     */
+    ObjectObserver.prototype.destroy = function () {
+        // remove all events
+        this.off();
+
+        return this;
+    };
+
+    /**
      * creates and returns a getter for a property
      *
      * @param {Object} property
@@ -554,6 +419,17 @@
 
         // create getter
         return function () {
+            // quick access
+            if (ObjectObserver.globalEventHandlingEnabled !== true) {
+                // property has a getter use it
+                if (property.hasGetter === true) {
+                    return property.descriptor.get.apply(this, arguments);
+                }
+
+                // no getter was defined, get value from observer
+                return property.value;
+            }
+
             var result = self.trigger('get:before:' + property.name, property.name);
 
             // result from event "get:before::PROPERTY" overrules result from event "get:before"
@@ -594,6 +470,11 @@
 
         // create getter
         return function () {
+            // quick access
+            if (ObjectObserver.globalEventHandlingEnabled !== true) {
+                return property.descriptor.value.apply(this, arguments);
+            }
+
             var parametersLength = arguments.length;
             var parameters       = new Array(parametersLength);
             // this is faster then Array.prototype.slice.call
@@ -643,6 +524,20 @@
 
         // create the setter
         return function (newValue) {
+            // quick access
+            if (ObjectObserver.globalEventHandlingEnabled !== true) {
+                // property has a setter use it
+                if (property.hasSetter === true) {
+                    property.descriptor.set.apply(this, arguments);
+                }
+                // no setter was defined, store value on observer
+                else {
+                    property.value = newValue;
+                }
+
+                return;
+            }
+
             var oldValue = undefined;
             // property has a getter use it
             if (property.hasGetter === true) {
@@ -722,35 +617,126 @@
     };
 
     /**
-     * trigger
      *
-     * @param {String} eventType
-     * @param {String} propertyName
-     * @param {...*} [arg] additional n Parameters
-     * @returns {*}
+     * @param {String} [eventName]
+     * @param {Function} [callback]
+     * @param {Object} [context]
+     * @returns {ObjectObserver}
      */
-    ObjectObserver.prototype.trigger = function (eventType, propertyName, arg) {
-        // on not started no event trigger
-        if (this.started === false) {
-            return;
+    ObjectObserver.prototype.off = function (eventName, callback, context) {
+        // remove all events
+        if (eventName === undefined && callback === undefined && context === undefined) {
+            for (key in this.events) {
+                delete this.events[key];
+            }
         }
 
-        var parameters = Array.prototype.slice.call(arguments, 1);
-        parameters.unshift(this.object);
-        parameters.unshift(eventType);
+        // removes all events by eventName
+        else if (eventName !== undefined && callback === undefined && context === undefined) {
+            if (this.events[eventName] !== undefined) {
+                delete this.events[eventName];
+            }
+        }
 
-        return Base.prototype.trigger.apply(this, parameters);
+        // loop over all events
+        else if (eventName === undefined) {
+            for (var key in this.events) {
+                removeEventsByEventName(this, key, callback, context);
+            }
+        }
+
+        // only one specific event with additional informations
+        else if (this.events[eventName] !== undefined) {
+            removeEventsByEventName(this, eventName, callback, context);
+        }
+
+        return this;
+    };
+
+    /**
+     * creates one or more events
+     *
+     * @param {String|Object} eventName
+     * @param {Function} callback
+     * @param {Object} [context]
+     * @returns {ObjectObserver}
+     */
+    ObjectObserver.prototype.on = function (eventName, callback, context) {
+        // Handle event maps.
+        if (typeof eventName === 'object') {
+            for (var key in eventName) {
+                this.on(key, eventName[key]);
+            }
+
+            return this;
+        }
+
+        // Handle space separated event names.
+        if (eventSplitter.test(eventName) === true) {
+            var eventNames = eventName.split(eventSplitter);
+            for (var i = 0, l = eventNames.length; i < l; i++) {
+                this.on(eventNames[i], callback, context);
+            }
+            return this;
+        }
+
+        // create new event entry
+        if (this.events[eventName] === undefined) {
+            this.events[eventName] = [];
+        }
+
+        // append the event
+        this.events[eventName].push({
+            callback: callback,
+            context: context,
+            ctx: context || undefined
+        });
+
+        return this;
     };
 
     /**
      * trigger
      *
-     * @param {String} eventType
+     * @param {String} eventName
+     * @param {String} propertyName
+     * @param {...*} [arg] additional n Parameters
+     * @returns {*}
+     */
+    ObjectObserver.prototype.trigger = function (eventName, propertyName, arg) {
+        // on not started no event trigger
+        if (ObjectObserver.globalEventHandlingEnabled !== true || this.started === false || this.events[eventName] === undefined) {
+            return;
+        }
+
+        var lengthParameters = arguments.length;
+        var parameters = new Array(lengthParameters);
+        parameters[0] = this.object;
+
+        // this is faster then Array.prototype.slice.call
+        for (var i = 1; i < lengthParameters; i++) {
+            parameters[i] = arguments[i];
+        }
+
+        if (this.async === true) {
+            setTimeout(callEventCallback.bind(this, this.events[eventName], parameters), 0);
+        }
+        else {
+            callEventCallback(this.events[eventName], parameters)
+        }
+
+        return undefined;
+    };
+
+    /**
+     * trigger
+     *
+     * @param {String} eventName
      * @param {String} propertyName
      * @param {Array} [parameters]
      * @returns {*}
      */
-    ObjectObserver.prototype.triggerWithParameters = function (eventType, propertyName, parameters) {
+    ObjectObserver.prototype.triggerWithParameters = function (eventName, propertyName, parameters) {
         // on not started no event trigger
         if (this.started === false) {
             return;
@@ -765,10 +751,9 @@
         }
 
         parameters.unshift(propertyName);
-        parameters.unshift(this.object);
-        parameters.unshift(eventType);
+        parameters.unshift(eventName);
 
-        return Base.prototype.trigger.apply(this, parameters);
+        return this.trigger.apply(this, parameters);
     };
 
     /**
