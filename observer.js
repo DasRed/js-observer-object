@@ -115,6 +115,7 @@
      * @param {Object} [options]
      * @param {Boolean} [options.async] If true, response values of event callbacks will be ignored. default true
      * @param {Boolean} [options.autoObserve] If true, observe will be starts on construct. dwefault true
+     * @param {Object} [options.properties]
      * @param {Object} [options.on] on events
      * @param {Object} [options.once] once events
      *
@@ -257,6 +258,7 @@
         }
 
         this.async = options.async !== undefined ? options.async : this.async;
+        this.properties = options.properties !== undefined ? options.properties : this.properties;
 
         if (options.autoObserve !== false) {
             this.observe();
