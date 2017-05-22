@@ -257,7 +257,7 @@
             this.once(options.once);
         }
 
-        this.async = options.async !== undefined ? options.async : this.async;
+        this.async      = options.async !== undefined ? options.async : this.async;
         this.properties = options.properties !== undefined ? options.properties : this.properties;
 
         if (options.autoObserve !== false) {
@@ -326,6 +326,16 @@
             writable: true
         }
     });
+
+    /**
+     * some stats
+     * @type {{triggers: number, triggersByEventName: {}, triggeryByPropertyName: {}}}
+     */
+    ObjectObserver.eventStatistics = {
+        triggers: 0,
+        triggersByEventName: {},
+        triggersByPropertyName: {}
+    };
 
     /**
      * creates observation for a property
@@ -711,9 +721,13 @@
             return;
         }
 
+        ObjectObserver.eventStatistics.triggers++;
+        ObjectObserver.eventStatistics.triggersByEventName[eventName]       = (ObjectObserver.eventStatistics.triggersByEventName[eventName] || 0) + 1;
+        ObjectObserver.eventStatistics.triggeryByPropertyName[propertyName] = (ObjectObserver.eventStatistics.triggeryByPropertyName[propertyName] || 0) + 1;
+
         var lengthParameters = arguments.length;
-        var parameters = new Array(lengthParameters);
-        parameters[0] = this.object;
+        var parameters       = new Array(lengthParameters);
+        parameters[0]        = this.object;
 
         // this is faster then Array.prototype.slice.call
         for (var i = 1; i < lengthParameters; i++) {
