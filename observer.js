@@ -329,7 +329,7 @@
 
     /**
      * some stats
-     * @type {{triggers: number, triggersByEventName: {}, triggeryByPropertyName: {}}}
+     * @type {{triggers: number, triggersByEventName: {}, triggersByPropertyName: {}}}
      */
     ObjectObserver.eventStatistics = {
         triggers: 0,
@@ -723,7 +723,7 @@
 
         ObjectObserver.eventStatistics.triggers++;
         ObjectObserver.eventStatistics.triggersByEventName[eventName]       = (ObjectObserver.eventStatistics.triggersByEventName[eventName] || 0) + 1;
-        ObjectObserver.eventStatistics.triggeryByPropertyName[propertyName] = (ObjectObserver.eventStatistics.triggeryByPropertyName[propertyName] || 0) + 1;
+        ObjectObserver.eventStatistics.triggersByPropertyName[propertyName] = (ObjectObserver.eventStatistics.triggersByPropertyName[propertyName] || 0) + 1;
 
         var lengthParameters = arguments.length;
         var parameters       = new Array(lengthParameters);
