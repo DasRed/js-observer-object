@@ -6,6 +6,9 @@
             return factory();
         });
 
+    } else if (typeof module === 'object' && module.exports) {
+        module.exports = factory();
+
     } else if (typeof exports !== 'undefined') {
         root.ObjectObserver = factory();
 
