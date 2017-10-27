@@ -639,29 +639,34 @@
      * @returns {ObjectObserver}
      */
     ObjectObserver.prototype.off = function (eventName, callback, context) {
+        var eventNameIsDefined = eventName !== undefined &&  eventName !== null;
+        var callbackIsDefined = callback !== undefined &&  callback !== null;
+        var contextIsDefined = context !== undefined &&  context !== null;
+        var eventIsDefined = this.events[eventName] !== undefined && this.events[eventName] !== null;
+
         // remove all events
-        if (eventName === undefined && callback === undefined && context === undefined) {
+        if (eventNameIsDefined === false && callbackIsDefined === false && contextIsDefined === false) {
             for (key in this.events) {
                 delete this.events[key];
             }
         }
 
         // removes all events by eventName
-        else if (eventName !== undefined && callback === undefined && context === undefined) {
-            if (this.events[eventName] !== undefined) {
+        else if (eventNameIsDefined === true && callbackIsDefined === false && contextIsDefined === false) {
+            if (eventIsDefined === true) {
                 delete this.events[eventName];
             }
         }
 
         // loop over all events
-        else if (eventName === undefined) {
+        else if (eventNameIsDefined === false) {
             for (var key in this.events) {
                 removeEventsByEventName(this, key, callback, context);
             }
         }
 
         // only one specific event with additional informations
-        else if (this.events[eventName] !== undefined) {
+        else if (eventIsDefined === true) {
             removeEventsByEventName(this, eventName, callback, context);
         }
 
