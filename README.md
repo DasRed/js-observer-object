@@ -20,7 +20,6 @@ For a given object will be following events fired
 
 ## Install
 ```
-bower install object-observer --save
 npm install js-object-observer --save
 ```
 
