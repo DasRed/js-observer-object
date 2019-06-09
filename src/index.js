@@ -31,6 +31,10 @@ function removeEventsByEventName(obj, eventName, callback, context) {
  * @return {*}
  */
 function callEventCallback(events, ...parameters) {
+    if ((events instanceof Array) === false) {
+        return undefined;
+    }
+
     return events.reduce((result, event) => event.callback.call(event.ctx, ...parameters) || result, undefined);
 }
 
