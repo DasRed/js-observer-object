@@ -1,6 +1,6 @@
 {
     "name": "js-object-observer",
-    "version": "1.2.3",
+    "version": "1.2.4",
     "description": "Adds events by the observer for your objects.",
     "main": "src/index.js",
     "repository": {
@@ -17,7 +17,8 @@
         "url": "https://github.com/DasRed/js-observer-object/issues"
     },
     "files": [
-        "/dist/*"
+        "/dist/*",
+        "/src/*"
     ],
     "homepage": "https://github.com/DasRed/js-observer-object#readme",
     "devDependencies": {
